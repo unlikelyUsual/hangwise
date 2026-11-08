@@ -1,0 +1,13 @@
+process.env.NODE_ENV ??= "test";
+process.env.HOST ??= "127.0.0.1";
+process.env.PORT ??= "0";
+process.env.DATABASE_URL ??= "postgresql://hangwise:hangwise@127.0.0.1:5433/hangwise";
+process.env.AUTH_MODE ??= "development";
+process.env.DEV_AUTH_SECRET ??= "hangwise-dev-secret";
+process.env.DEMO_MODE ??= "true";
+process.env.PAYMENTS_MODE ??= "disabled";
+process.env.VERIFICATION_MODE ??= "unavailable";
+process.env.HANGWISE_REPOSITORY ??= "memory";
+process.env.CORS_ORIGINS ??= "";
+process.env.RATE_LIMIT_MAX ??= "120";
+process.env.RATE_LIMIT_WINDOW_MS ??= "60000";
