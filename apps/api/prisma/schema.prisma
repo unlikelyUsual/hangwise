@@ -1,0 +1,405 @@
+// Hangwise demo schema.
+// Active booking anti-overlap is a Postgres EXCLUDE constraint in the
+// exclusion_constraints migration. It is not representable here.
+// Use `prisma migrate deploy`. Do not use `prisma db push`; it can drop that constraint.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  customer
+  companion
+  admin
+
+  @@map("user_role")
+}
+
+enum CompanionStatus {
+  draft
+  listed
+  paused
+  suspended
+
+  @@map("companion_status")
+}
+
+enum BookingStatus {
+  requested
+  accepted
+  hold
+  expired
+  declined
+  cancelled
+  completed
+
+  @@map("booking_status")
+}
+
+enum FeePolicy {
+  unknown
+  configured
+
+  @@map("fee_policy")
+}
+
+enum PaymentStatus {
+  unavailable
+  not_started
+  pending
+  authorized
+  captured
+  failed
+  refunded
+  cancelled
+
+  @@map("payment_status")
+}
+
+enum RefundStatus {
+  not_started
+  pending
+  succeeded
+  failed
+
+  @@map("refund_status")
+}
+
+enum PayoutStatus {
+  not_configured
+  pending
+  paid
+  failed
+
+  @@map("payout_status")
+}
+
+enum VerificationStatus {
+  unavailable
+  not_started
+  pending
+  approved
+  rejected
+
+  @@map("verification_status")
+}
+
+enum ReportStatus {
+  open
+  closed
+
+  @@map("report_status")
+}
+
+enum ReportCategory {
+  policy
+  safety
+  other
+
+  @@map("report_category")
+}
+
+model User {
+  id          String    @id @default(uuid()) @db.Uuid
+  email       String    @unique
+  displayName String    @map("display_name")
+  role        UserRole
+  isDemo      Boolean   @default(true) @map("is_demo")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  privateProfile     UserPrivateProfile?
+  companionProfile   CompanionProfile?
+  customerBookings   Booking[]            @relation("customer_bookings")
+  memberships        ConversationMember[]
+  messages           Message[]
+  reportsFiled       Report[]             @relation("reports_filed")
+  reportsAbout       Report[]             @relation("reports_about")
+  blocksMade         Block[]              @relation("blocks_made")
+  blocksReceived     Block[]              @relation("blocks_received")
+  checkIns           CheckIn[]
+  reviews            Review[]
+  auditLogs          AuditLog[]
+  idempotencyRecords IdempotencyRecord[]
+  verifications      VerificationReference[]
+
+  @@map("users")
+}
+
+model UserPrivateProfile {
+  userId            String    @id @map("user_id") @db.Uuid
+  phoneE164         String?   @map("phone_e164")
+  locale            String    @default("en")
+  countryCode       String?   @map("country_code") @db.VarChar(2)
+  termsAcceptedAt   DateTime? @map("terms_accepted_at") @db.Timestamptz(6)
+  privacyAcceptedAt DateTime? @map("privacy_accepted_at") @db.Timestamptz(6)
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  user              User      @relation(fields: [userId], references: [id])
+
+  @@map("user_private_profiles")
+}
+
+model CompanionProfile {
+  id              String          @id @default(uuid()) @db.Uuid
+  userId          String          @unique @map("user_id") @db.Uuid
+  publicName      String          @map("public_name")
+  ageYears        Int             @map("age_years")
+  headline        String
+  bio             String
+  city            String
+  area            String
+  status          CompanionStatus @default(draft)
+  hourlyRateMinor Int             @map("hourly_rate_minor")
+  currency        String          @db.VarChar(3)
+  languages       String[]
+  boundaries      String
+  createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+  user            User            @relation(fields: [userId], references: [id])
+  availability    Availability[]
+  bookings        Booking[]
+  payouts         Payout[]
+
+  @@index([status, city])
+  @@map("companion_profiles")
+}
+
+model Availability {
+  id                 String           @id @default(uuid()) @db.Uuid
+  companionProfileId String           @map("companion_profile_id") @db.Uuid
+  startsAt           DateTime         @map("starts_at") @db.Timestamptz(6)
+  endsAt             DateTime         @map("ends_at") @db.Timestamptz(6)
+  createdAt          DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  companion          CompanionProfile @relation(fields: [companionProfileId], references: [id])
+
+  @@index([companionProfileId, startsAt])
+  @@map("availability")
+}
+
+model Booking {
+  id                 String           @id @default(uuid()) @db.Uuid
+  customerId         String           @map("customer_id") @db.Uuid
+  companionProfileId String           @map("companion_profile_id") @db.Uuid
+  venueName          String           @map("venue_name")
+  venueArea          String           @map("venue_area")
+  startsAt           DateTime         @map("starts_at") @db.Timestamptz(6)
+  endsAt             DateTime         @map("ends_at") @db.Timestamptz(6)
+  status             BookingStatus    @default(requested)
+  priceMinor         Int              @map("price_minor")
+  currency           String           @db.VarChar(3)
+  platformFeeMinor   Int?             @map("platform_fee_minor")
+  feePolicy          FeePolicy        @map("fee_policy")
+  customerNote       String?          @map("customer_note")
+  holdExpiresAt      DateTime?        @map("hold_expires_at") @db.Timestamptz(6)
+  requestedAt        DateTime         @default(now()) @map("requested_at") @db.Timestamptz(6)
+  acceptedAt         DateTime?        @map("accepted_at") @db.Timestamptz(6)
+  declinedAt         DateTime?        @map("declined_at") @db.Timestamptz(6)
+  cancelledAt        DateTime?        @map("cancelled_at") @db.Timestamptz(6)
+  completedAt        DateTime?        @map("completed_at") @db.Timestamptz(6)
+  expiredAt          DateTime?        @map("expired_at") @db.Timestamptz(6)
+  cancelledByUserId  String?          @map("cancelled_by_user_id") @db.Uuid
+  createdAt          DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+  customer           User             @relation("customer_bookings", fields: [customerId], references: [id])
+  companion          CompanionProfile @relation(fields: [companionProfileId], references: [id])
+  conversation       Conversation?
+  payment            Payment?
+  checkIns           CheckIn[]
+  reviews            Review[]
+
+  @@index([customerId, createdAt])
+  @@index([companionProfileId, status])
+  @@map("bookings")
+}
+
+model IdempotencyRecord {
+  id             String   @id @default(uuid()) @db.Uuid
+  actorUserId    String   @map("actor_user_id") @db.Uuid
+  idempotencyKey String   @map("idempotency_key")
+  requestHash    String   @map("request_hash")
+  responseBody   Json     @map("response_body")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  actor          User     @relation(fields: [actorUserId], references: [id])
+
+  @@unique([actorUserId, idempotencyKey])
+  @@map("idempotency_records")
+}
+
+model Conversation {
+  id        String               @id @default(uuid()) @db.Uuid
+  bookingId String?              @unique @map("booking_id") @db.Uuid
+  createdAt DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  booking   Booking?             @relation(fields: [bookingId], references: [id])
+  members   ConversationMember[]
+  messages  Message[]
+
+  @@map("conversations")
+}
+
+model ConversationMember {
+  conversationId String       @map("conversation_id") @db.Uuid
+  userId         String       @map("user_id") @db.Uuid
+  joinedAt       DateTime     @default(now()) @map("joined_at") @db.Timestamptz(6)
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  user           User         @relation(fields: [userId], references: [id])
+
+  @@id([conversationId, userId])
+  @@map("conversation_members")
+}
+
+model Message {
+  id             String       @id @default(uuid()) @db.Uuid
+  conversationId String       @map("conversation_id") @db.Uuid
+  senderUserId   String       @map("sender_user_id") @db.Uuid
+  body           String
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  sender         User         @relation(fields: [senderUserId], references: [id])
+
+  @@index([conversationId, createdAt])
+  @@map("messages")
+}
+
+model Payment {
+  id                String        @id @default(uuid()) @db.Uuid
+  bookingId         String        @unique @map("booking_id") @db.Uuid
+  status            PaymentStatus @default(unavailable)
+  provider          String        @default("unconfigured")
+  amountMinor       Int           @map("amount_minor")
+  currency          String        @db.VarChar(3)
+  externalReference String?       @map("external_reference")
+  createdAt         DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
+  booking           Booking       @relation(fields: [bookingId], references: [id])
+  refunds           Refund[]
+
+  @@map("payments")
+}
+
+model Refund {
+  id                String       @id @default(uuid()) @db.Uuid
+  paymentId         String       @map("payment_id") @db.Uuid
+  status            RefundStatus @default(not_started)
+  amountMinor       Int          @map("amount_minor")
+  currency          String       @db.VarChar(3)
+  externalReference String?      @map("external_reference")
+  createdAt         DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  payment           Payment      @relation(fields: [paymentId], references: [id])
+
+  @@map("refunds")
+}
+
+model Payout {
+  id                 String           @id @default(uuid()) @db.Uuid
+  companionProfileId String           @map("companion_profile_id") @db.Uuid
+  status             PayoutStatus     @default(not_configured)
+  amountMinor        Int              @map("amount_minor")
+  currency           String           @db.VarChar(3)
+  externalReference  String?          @map("external_reference")
+  createdAt          DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  companion          CompanionProfile @relation(fields: [companionProfileId], references: [id])
+
+  @@map("payouts")
+}
+
+model VerificationReference {
+  id                String             @id @default(uuid()) @db.Uuid
+  userId            String             @map("user_id") @db.Uuid
+  kind              String
+  provider          String             @default("unconfigured")
+  status            VerificationStatus @default(unavailable)
+  externalReference String?            @map("external_reference")
+  createdAt         DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  user              User               @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("verification_references")
+}
+
+model WebhookEvent {
+  id              String   @id @default(uuid()) @db.Uuid
+  provider        String
+  externalEventId String   @map("external_event_id")
+  payloadSha256   String   @map("payload_sha256")
+  status          String
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([provider, externalEventId])
+  @@map("webhook_events")
+}
+
+model Report {
+  id             String         @id @default(uuid()) @db.Uuid
+  reporterUserId String         @map("reporter_user_id") @db.Uuid
+  subjectUserId  String?        @map("subject_user_id") @db.Uuid
+  bookingId      String?        @map("booking_id") @db.Uuid
+  category       ReportCategory
+  body           String
+  status         ReportStatus   @default(open)
+  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  reporter       User           @relation("reports_filed", fields: [reporterUserId], references: [id])
+  subject        User?          @relation("reports_about", fields: [subjectUserId], references: [id])
+
+  @@map("reports")
+}
+
+model Block {
+  blockerUserId String   @map("blocker_user_id") @db.Uuid
+  blockedUserId String   @map("blocked_user_id") @db.Uuid
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  blocker       User     @relation("blocks_made", fields: [blockerUserId], references: [id])
+  blocked       User     @relation("blocks_received", fields: [blockedUserId], references: [id])
+
+  @@id([blockerUserId, blockedUserId])
+  @@map("blocks")
+}
+
+model CheckIn {
+  id        String   @id @default(uuid()) @db.Uuid
+  bookingId String   @map("booking_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  note      String
+  monitored Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  booking   Booking  @relation(fields: [bookingId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([bookingId])
+  @@map("check_ins")
+}
+
+model Review {
+  id           String   @id @default(uuid()) @db.Uuid
+  bookingId    String   @map("booking_id") @db.Uuid
+  authorUserId String   @map("author_user_id") @db.Uuid
+  rating       Int
+  body         String
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  booking      Booking  @relation(fields: [bookingId], references: [id])
+  author       User     @relation(fields: [authorUserId], references: [id])
+
+  @@unique([bookingId, authorUserId])
+  @@map("reviews")
+}
+
+model AuditLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  actorUserId String?  @map("actor_user_id") @db.Uuid
+  action      String
+  entityType  String   @map("entity_type")
+  entityId    String   @map("entity_id")
+  metadata    Json?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  actor       User?    @relation(fields: [actorUserId], references: [id])
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

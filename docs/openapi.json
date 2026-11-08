@@ -1,0 +1,1134 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "HealthController_health",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "operationId": "HealthController_ready",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/v1/me": {
+      "get": {
+        "operationId": "UsersController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "devSecret": []
+          },
+          {
+            "devUser": []
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/v1/companions": {
+      "get": {
+        "operationId": "CompanionsController_list",
+        "parameters": [
+          {
+            "name": "city",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "Bangkok",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "companions"
+        ]
+      }
+    },
+    "/v1/companions/{id}": {
+      "get": {
+        "operationId": "CompanionsController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "companions"
+        ]
+      }
+    },
+    "/v1/companions/{id}/availability": {
+      "get": {
+        "operationId": "CompanionsController_availability",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "companions"
+        ]
+      }
+    },
+    "/v1/bookings": {
+      "get": {
+        "operationId": "BookingsController_list",
+        "parameters": [
+          {
+            "name": "X-Hangwise-Dev-Secret",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Hangwise-Dev-User",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "devSecret": []
+          },
+          {
+            "devUser": []
+          }
+        ],
+        "tags": [
+          "bookings"
+        ]
+      },
+      "post": {
+        "operationId": "BookingsController_create",
+        "parameters": [
+          {
+            "name": "X-Hangwise-Dev-Secret",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Hangwise-Dev-User",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBookingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "devSecret": []
+          },
+          {
+            "devUser": []
+          }
+        ],
+        "tags": [
+          "bookings"
+        ]
+      }
+    },
+    "/v1/bookings/{id}": {
+      "get": {
+        "operationId": "BookingsController_get",
+        "parameters": [
+          {
+            "name": "X-Hangwise-Dev-Secret",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Hangwise-Dev-User",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "devSecret": []
+          },
+          {
+            "devUser": []
+          }
+        ],
+        "tags": [
+          "bookings"
+        ]
+      }
+    },
+    "/v1/bookings/{id}/accept": {
+      "post": {
+        "operationId": "BookingsController_accept",
+        "parameters": [
+          {
+            "name": "X-Hangwise-Dev-Secret",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Hangwise-Dev-User",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "devSecret": []
+          },
+          {
+            "devUser": []
+          }
+        ],
+        "tags": [
+          "bookings"
+        ]
+      }
+    },
+    "/v1/bookings/{id}/decline": {
+      "post": {
+        "operationId": "BookingsController_decline",
+        "parameters": [
+          {
+            "name": "X-Hangwise-Dev-Secret",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Hangwise-Dev-User",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "devSecret": []
+          },
+          {
+            "devUser": []
+          }
+        ],
+        "tags": [
+          "bookings"
+        ]
+      }
+    },
+    "/v1/bookings/{id}/hold": {
+      "post": {
+        "operationId": "BookingsController_hold",
+        "parameters": [
+          {
+            "name": "X-Hangwise-Dev-Secret",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Hangwise-Dev-User",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HoldBookingDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "devSecret": []
+          },
+          {
+            "devUser": []
+          }
+        ],
+        "tags": [
+          "bookings"
+        ]
+      }
+    },
+    "/v1/bookings/{id}/cancel": {
+      "post": {
+        "operationId": "BookingsController_cancel",
+        "parameters": [
+          {
+            "name": "X-Hangwise-Dev-Secret",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Hangwise-Dev-User",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "devSecret": []
+          },
+          {
+            "devUser": []
+          }
+        ],
+        "tags": [
+          "bookings"
+        ]
+      }
+    },
+    "/v1/bookings/{id}/complete": {
+      "post": {
+        "operationId": "BookingsController_complete",
+        "parameters": [
+          {
+            "name": "X-Hangwise-Dev-Secret",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Hangwise-Dev-User",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "devSecret": []
+          },
+          {
+            "devUser": []
+          }
+        ],
+        "tags": [
+          "bookings"
+        ]
+      }
+    },
+    "/v1/conversations": {
+      "get": {
+        "operationId": "ChatController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "devSecret": []
+          },
+          {
+            "devUser": []
+          }
+        ],
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/v1/conversations/{id}/messages": {
+      "get": {
+        "operationId": "ChatController_messages",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "devSecret": []
+          },
+          {
+            "devUser": []
+          }
+        ],
+        "tags": [
+          "chat"
+        ]
+      },
+      "post": {
+        "operationId": "ChatController_post",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMessageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "devSecret": []
+          },
+          {
+            "devUser": []
+          }
+        ],
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/v1/payments/checkout": {
+      "post": {
+        "operationId": "PaymentsController_checkout",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckoutDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "devSecret": []
+          },
+          {
+            "devUser": []
+          }
+        ],
+        "tags": [
+          "payments"
+        ]
+      }
+    },
+    "/v1/payments/booking/{bookingId}": {
+      "get": {
+        "operationId": "PaymentsController_forBooking",
+        "parameters": [
+          {
+            "name": "bookingId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "devSecret": []
+          },
+          {
+            "devUser": []
+          }
+        ],
+        "tags": [
+          "payments"
+        ]
+      }
+    },
+    "/v1/verification/me": {
+      "get": {
+        "operationId": "VerificationController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "devSecret": []
+          },
+          {
+            "devUser": []
+          }
+        ],
+        "tags": [
+          "verification"
+        ]
+      }
+    },
+    "/v1/verification/start": {
+      "post": {
+        "operationId": "VerificationController_start",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartVerificationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "devSecret": []
+          },
+          {
+            "devUser": []
+          }
+        ],
+        "tags": [
+          "verification"
+        ]
+      }
+    },
+    "/v1/safety/policy": {
+      "get": {
+        "operationId": "SafetyController_policy",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "safety"
+        ]
+      }
+    },
+    "/v1/safety/reports": {
+      "post": {
+        "operationId": "SafetyController_report",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateReportDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "devSecret": []
+          },
+          {
+            "devUser": []
+          }
+        ],
+        "tags": [
+          "safety"
+        ]
+      }
+    },
+    "/v1/safety/blocks": {
+      "post": {
+        "operationId": "SafetyController_block",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBlockDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "devSecret": []
+          },
+          {
+            "devUser": []
+          }
+        ],
+        "tags": [
+          "safety"
+        ]
+      }
+    },
+    "/v1/safety/check-ins": {
+      "post": {
+        "operationId": "SafetyController_checkIn",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCheckInDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "devSecret": []
+          },
+          {
+            "devUser": []
+          }
+        ],
+        "tags": [
+          "safety"
+        ]
+      },
+      "get": {
+        "operationId": "SafetyController_listCheckIns",
+        "parameters": [
+          {
+            "name": "bookingId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "devSecret": []
+          },
+          {
+            "devUser": []
+          }
+        ],
+        "tags": [
+          "safety"
+        ]
+      }
+    },
+    "/v1/reviews": {
+      "get": {
+        "operationId": "ReviewsController_list",
+        "parameters": [
+          {
+            "name": "bookingId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "devSecret": []
+          },
+          {
+            "devUser": []
+          }
+        ],
+        "tags": [
+          "reviews"
+        ]
+      },
+      "post": {
+        "operationId": "ReviewsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateReviewDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "devSecret": []
+          },
+          {
+            "devUser": []
+          }
+        ],
+        "tags": [
+          "reviews"
+        ]
+      }
+    },
+    "/v1/admin/audit-logs": {
+      "get": {
+        "operationId": "AdminController_audit",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 50,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "devSecret": []
+          },
+          {
+            "devUser": []
+          }
+        ],
+        "tags": [
+          "admin"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Hangwise API",
+    "description": "Demo skeleton for a paid, non-sexual, one-day public date marketplace. Payments, identity verification, and production authentication are not implemented. Development auth is rejected unless NODE_ENV is development or test and AUTH_MODE=development. Companion ages are fictional and unverified. A hold does not charge a card.",
+    "version": "0.1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [
+    {
+      "url": "http://127.0.0.1:3000",
+      "description": "Local API"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "devUser": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Hangwise-Dev-User"
+      },
+      "devSecret": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Hangwise-Dev-Secret"
+      }
+    },
+    "schemas": {
+      "CreateBookingDto": {
+        "type": "object",
+        "properties": {
+          "companionProfileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "startsAt": {
+            "type": "string",
+            "example": "2026-11-12T03:00:00.000Z"
+          },
+          "endsAt": {
+            "type": "string",
+            "example": "2026-11-12T05:00:00.000Z"
+          },
+          "venueName": {
+            "type": "string",
+            "example": "Lumpini Park"
+          },
+          "venueArea": {
+            "type": "string",
+            "example": "Pathum Wan"
+          },
+          "note": {
+            "type": "string"
+          },
+          "acknowledgedPublicDatePolicy": {
+            "type": "boolean",
+            "description": "Must be true. Acknowledges the public, non-sexual date policy."
+          }
+        },
+        "required": [
+          "companionProfileId",
+          "startsAt",
+          "endsAt",
+          "venueName",
+          "venueArea",
+          "acknowledgedPublicDatePolicy"
+        ]
+      },
+      "HoldBookingDto": {
+        "type": "object",
+        "properties": {
+          "holdMinutes": {
+            "type": "number",
+            "minimum": 15,
+            "maximum": 120,
+            "description": "Minutes until the hold expires. This does not authorize a payment."
+          }
+        },
+        "required": [
+          "holdMinutes"
+        ]
+      },
+      "CreateMessageDto": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "body"
+        ]
+      },
+      "CheckoutDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "StartVerificationDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateReportDto": {
+        "type": "object",
+        "properties": {
+          "subjectUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "bookingId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "policy",
+              "safety",
+              "other"
+            ]
+          },
+          "body": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "category",
+          "body"
+        ]
+      },
+      "CreateBlockDto": {
+        "type": "object",
+        "properties": {
+          "blockedUserId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "blockedUserId"
+        ]
+      },
+      "CreateCheckInDto": {
+        "type": "object",
+        "properties": {
+          "bookingId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "bookingId",
+          "note"
+        ]
+      },
+      "CreateReviewDto": {
+        "type": "object",
+        "properties": {
+          "bookingId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "rating": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "body": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "bookingId",
+          "rating",
+          "body"
+        ]
+      }
+    }
+  }
+}

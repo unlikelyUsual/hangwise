@@ -1,0 +1,22 @@
+{
+  "name": "hangwise",
+  "private": true,
+  "version": "0.1.0",
+  "engines": {
+    "node": ">=24.9"
+  },
+  "workspaces": [
+    "apps/api"
+  ],
+  "scripts": {
+    "build": "npm run build -w hangwise-api",
+    "lint": "npm run lint -w hangwise-api",
+    "test": "npm test -w hangwise-api",
+    "test:integration": "npm run test:integration -w hangwise-api",
+    "start": "npm run start -w hangwise-api",
+    "worker": "npm run worker -w hangwise-api",
+    "db:migrate": "npm run prisma:migrate -w hangwise-api",
+    "db:seed": "npm run prisma:seed -w hangwise-api",
+    "openapi": "npm run openapi -w hangwise-api"
+  }
+}
